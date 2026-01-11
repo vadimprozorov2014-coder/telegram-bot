@@ -7,11 +7,14 @@ import telebot
 from telebot import types
 from flask import Flask
 
+print("DEBUG: бот запускается")
+
 # ====== Настройки ======
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 if not BOT_TOKEN:
     raise RuntimeError("Не задана переменная окружения BOT_TOKEN")
+print("DEBUG: BOT_TOKEN найден")
 
 # срок тестовой подписки
 SUBSCRIPTION_DAYS = 7
@@ -160,7 +163,9 @@ def status(message):
 # ====== Запуск бота и Flask-сервера (для Render) ======
 
 def run_bot():
+    print("DEBUG: запускаем infinity_polling")
     bot.infinity_polling(skip_pending=True)
+    print("DEBUG: infinity_polling завершился (такого быть не должно)")
 
 
 @app.route("/")
@@ -169,7 +174,12 @@ def index():
 
 
 if __name__ == "__main__":
-    threading.Thread(target=run_bot, daemon=True).start()
+    print("DEBUG: в блоке __main__")
+    t = threading.Thread(target=run_bot, daemon=True)
+    t.start()
 
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    port_env = os.environ.get("PORT")
+    print(f"DEBUG: значение PORT из окружения: {port_env}")
+    port = int(port_env or 5000)
+    print(f"DEBUG: запускаем Flask на порту {port}")
+    app.run(host="0.0.0.0", port=port, use_reloader=False)
